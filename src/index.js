@@ -6,11 +6,15 @@ import { CANVAS_AFFECTED_BARS, AFFECTED_FLOW_BARS } from './affected_flow_bars.j
 
 require("expose-loader?d3!d3"); // make d3 module available in the console
 
-
+window.addEventListener('resize', updateChart); //update area chart on resizing window
 // here we are setting the canvas for the area chart
 export const MARGIN = {top: 10, right: 30, bottom: 30, left: 50},
     WIDTH = 1000 - MARGIN.left - MARGIN.right,
     HEIGHT = 400 - MARGIN.top - MARGIN.bottom;
+
+var margin = {top: 10, right: 30, bottom: 30, left: 50},
+    width,
+    height;
 
 // append div for area chart
 d3.select('body')
@@ -36,32 +40,30 @@ export const DIV_MAPS = d3.select('body')
 const SVG_AREA_CHART = d3.select("#div_area")
                             .append("svg")
                                 .attr('id', 'area_chart')
-                                .attr("width", WIDTH + MARGIN.left + MARGIN.right)
-                                .attr("height", HEIGHT + MARGIN.top + MARGIN.bottom)
-                                .append("g")
-                                .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
+                                .attr('preserveAspectRatio', 'xMidYMid meet')
+                                .append("g");
 
-var x = d3.scaleTime() // this is the scale for time domains
-                .range([ 0, WIDTH ]); // the ouput range, which the input data should fit
+var x = d3.scaleTime(); // this is the scale for time domains
 
-var xAxis = d3.axisBottom().scale(x); //Initialize X axis
+var xAxis = d3.axisBottom() //Initialize X axis
+var xAxis = d3.axisBottom();
 
 SVG_AREA_CHART.append("g")
-                .attr("transform", `translate(0,${HEIGHT})`) // axes are always rendered at the origin, that's why we need to transform them accordingly
                 .attr("class","Xaxis_area_chart")
 
 var y = d3.scaleLinear() // this is the quantitative scale for values
-                .range([ HEIGHT, 0 ]); // the ouput range, which the input data should fit
 
-var yAxis = d3.axisLeft().scale(y); //Initialize Y axis
+var yAxis = d3.axisLeft() //Initialize Y axis
+
+const area = d3.area(); //Constructs an area generator
 
 SVG_AREA_CHART.append("g")
                 .attr("class","Yaxis_area_chart");
 
-CANVAS_AFFECTED_BARS(); // add empty canvas for affected flow bar chart
+CANVAS_AFFECTED_BARS(); // initialize empty canvas for affected flow bar chart
 
 var data;
-d3.csv('./data/data.csv',   //url
+d3.csv('./data/data.csv',   // a promise to load data from url
     function (d){           // row conversion function
         return {
             affected: d.affected,
@@ -87,42 +89,77 @@ export const area_chart = function (affected = 'Brazil', implementer = 'Argentin
     console.log({affected: affected, implementer: implementer});
     console.log(data_chart)
 
-    // Add X axis
-    x = x.domain(d3.extent(data_chart, d => new Date(+d.year,0) )) // the input data range 
+    x.domain(d3.extent(data_chart, d => new Date(+d.year,0) )) // set the input data range 
+   
+    y.domain([0, d3.max(data_chart, d => d.value )]) // the input data range from min to max
 
-    SVG_AREA_CHART.selectAll(".Xaxis_area_chart")
-                    .transition() //gradual transition between previous and current state of X axis
-                    .call(xAxis);
-
-    // Add Y axis
-    y = y.domain([0, d3.max(data_chart, d => d.value )]) // the input data range from min to max
-
-    SVG_AREA_CHART.selectAll(".Yaxis_area_chart")
-                    .transition() //gradual transition between previous and current state of Y axis
-                    .call(yAxis); // renders reference marks for scales
-
-    var area = d3.area() //Constructs an area generator
-                    .x(d => x(new Date(+d.year,0)))
-                    .y0(y(0))   // sets bottom 'limit', eg zero
-                    .y1(d => y(d.value) );
-
-    var update = SVG_AREA_CHART.selectAll(".area_path") // create update selection and bind new data
+    var update = SVG_AREA_CHART.selectAll(".area_path") // create selection and bind new data
                     .data([data_chart]);
-
 
         update
             .enter()
                 .append("path")
                 .attr("class","area_path")
-                .merge(update) // merge previous data and update data for the area chart
-                .transition() // gradual transition between previous and current area charts
+                .merge(update); // merge previous data and update data for the area chart
+
+    updateChart(); // run this function initially
+    AFFECTED_FLOW_BARS(data_chart);
+    
+}
+
+
+    function updateChart(winWidth){
+
+        var SVG_AREA_CHART =  d3.select('#area_chart');
+        
+            width = window.innerWidth - margin.left - margin.right - 200; //recalculate width based on window size
+            //height = 400 - margin.top - margin.bottom; //recalculate height based on window size
+            height = width*0.3;
+
+            SVG_AREA_CHART
+                .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("width", '100%')
+                .attr("height", '100%')
+                .attr('preserveAspectRatio', 'xMidYMid meet')
+
+            SVG_AREA_CHART
+                .select('g')
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+               x.range([ 0, width ]); // the ouput range, which the input data should fit
+
+               let breakpoint = 520; //window width limit, after which only each second tick from x axis will be shown
+               if (window.innerWidth >= breakpoint){
+                xAxis.scale(x).ticks(d3.timeYear.every(1)); // set scale of X axis
+               } else {
+                xAxis.scale(x).ticks(d3.timeYear.every(2)); // set scale of X axis
+               }
+           
+               y.range([ height, 0 ]); // the ouput range, which the input data should fit
+           yAxis.scale(y); // set scale of Y axis
+
+    SVG_AREA_CHART.select('.Xaxis_area_chart')
+                .attr("transform", `translate(0,${height})`) // axes are always rendered at the origin, that's why we need to transform them accordingly
+                .transition() //gradual transition between previous and current state of X axis
+                .call(xAxis);
+
+    SVG_AREA_CHART.select(".Yaxis_area_chart")
+                .transition() //gradual transition between previous and current state of Y axis
+                .call(yAxis); // renders reference marks for scales
+
+            area // set parameters of area generator
+                .x(d => x(new Date(+d.year,0)))
+                .y0(y(0))   // sets bottom 'limit', eg zero
+                .y1(d => y(d.value) );
+
+            SVG_AREA_CHART
+                .selectAll(".area_path")
+                .transition()// gradual transition between previous and current area charts
                 .attr("fill", "#cce5df")
                 .attr("stroke", "#69b3a2")
                 .attr("stroke-width", 1.5)
-                .attr("d", area);
-
-    AFFECTED_FLOW_BARS(data_chart);
-}
+                .attr("d", area); //build path chart
+    }
 
 // function to feed 'country-total values' to maps
 export const DATA_FOR_MAP = function (data, type){
@@ -135,5 +172,4 @@ export const DATA_FOR_MAP = function (data, type){
         output.push({ country: country, value: value })
     }
     return output;
-
 }

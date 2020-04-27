@@ -22,12 +22,14 @@ const div_affected =  d3.select('#div_affected');
     const SVG_MAP_AFFECTED = div_affected //set canvas for map
         .append("svg")
         .attr('id', 'map_affected')
-        .attr("width", WIDTH/2 + MARGIN.left + MARGIN.right)
-        .attr("height", HEIGHT + MARGIN.top + MARGIN.bottom);
+        .attr("width", '100%')
+        .attr("height", '100%')
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('viewBox', `0 0 ${WIDTH/2 + MARGIN.left + MARGIN.right} ${HEIGHT + MARGIN.top + MARGIN.bottom}`)
 
     const PROJECTION = geoNaturalEarth() // a projection function that converts from a lon/lat point to an x/y point
         .scale(100) // scale a projection, eg zoom in/out. The default scale factor on a projection is 150, so a scale of 450 is three times zoomed in and so on
-        .translate([WIDTH / 4, HEIGHT / 2]); // set the x/y value for the center (lon/lat) point of the map
+        .translate([WIDTH / 4, HEIGHT / 2 ]); // set the x/y value for the center (lon/lat) point of the map
 
 
     const COLOR_SCALE = d3.scaleSequential()
@@ -78,8 +80,8 @@ const div_affected =  d3.select('#div_affected');
             MAP_AFFECTED_PATH
                 .append('rect')
                 .classed('maps_background', true)
-                .attr("width", WIDTH/2 + MARGIN.left + MARGIN.right)
-                .attr("height", HEIGHT + MARGIN.top + MARGIN.bottom)
+                .attr("width", '100%') //WIDTH/2 + MARGIN.left + MARGIN.right)
+                .attr("height", '100%') //HEIGHT + MARGIN.top + MARGIN.bottom)
                 .on('click', () => { 
                     d3.selectAll('.affected_selected')
                         .classed('affected_selected', false);
@@ -91,8 +93,9 @@ const div_affected =  d3.select('#div_affected');
 
                     set_title();
                 })
-                .lower()
+                .lower() // move background rectangle to the end of parent html element
         }
+
 
 }
 

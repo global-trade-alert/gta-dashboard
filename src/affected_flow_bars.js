@@ -3,19 +3,21 @@ WIDTH = 800 - MARGIN.left - MARGIN.right,
 HEIGHT = 400 - MARGIN.top - MARGIN.bottom,
 duration = 500;
 
-var x = d3.scaleBand()
-        .rangeRound([0, WIDTH/4])
-        .paddingInner(.1)
-        .paddingOuter(.3);
+var x = d3.scaleBand() // creates a categorical scale
+        .range([0, WIDTH/4]) //set a width to scale the categories at
+        .paddingInner(.1) //padding between individual bars
+        .paddingOuter(.3); //padding between bars and axis
 
-var y = d3.scaleLinear()
-        .rangeRound([HEIGHT, 0]);
+var y = d3.scaleLinear() // this is the quantitative scale for values
+        .rangeRound([HEIGHT, 0]); // the ouput range, which the input data should fit
 
-var xAxis = d3.axisBottom(x);
+y.domain([0, 10]); // I think this would be constant (0 to 1, or 1 to 100)
 
-var yAxis = d3.axisLeft(y);
+var xAxis = d3.axisBottom(x); //Initialize X axis
 
-export const CANVAS_AFFECTED_BARS = function(){
+var yAxis = d3.axisLeft(y); //Initialize Y axis
+
+export const CANVAS_AFFECTED_BARS = function(){ // add initial svg and g elements to a page, where bars will be plotted
 
 const DIV_AFFECTED_FLOW = d3.select('#div_maps')
         .append('div')
@@ -25,8 +27,10 @@ const DIV_AFFECTED_FLOW = d3.select('#div_maps')
 const SVG_AFFECTED_FLOW = DIV_AFFECTED_FLOW //set canvas for map
         .append("svg")
         //.attr('id', 'svg_affected_flow')
-        .attr("width", WIDTH/2 + MARGIN.left + MARGIN.right)
-        .attr("height", HEIGHT + MARGIN.top + MARGIN.bottom);
+        .attr("width", '100%')
+        .attr("height", '100%')
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('viewBox', `0 0 250 400`)//${WIDTH/2 + MARGIN.left + MARGIN.right} ${HEIGHT + MARGIN.top + MARGIN.bottom}`);
 
 const G_AFFECTED_FLOW = SVG_AFFECTED_FLOW
         .append("g")
@@ -42,68 +46,52 @@ const G_AFFECTED_FLOW = SVG_AFFECTED_FLOW
         .append("text")
         .attr("fill", "#000")
         .attr("transform", "rotate(-90)")
-        .attr("y", 6)
+        .attr("y", 5 - MARGIN.left)
+        .attr("x", 0 - (HEIGHT/2))
         .attr("dy", "0.71em")
-        .attr("text-anchor", "end")
+        .attr("text-anchor", "middle")
         .text("Percentage");
+
+    G_AFFECTED_FLOW.select('.y_axis')
+        .transition()
+        .duration(duration)
+        .call(yAxis);
 }
 
-export const AFFECTED_FLOW_BARS = function(data){
+export const AFFECTED_FLOW_BARS = function(data){ // a function-feeder of new data for bars
 
-    let data_bars = PREPARE_DATA(data);
+    let data_bars = PREPARE_DATA(data); // parse data into meaningful format for bars
     console.log(data_bars)
 
-    x.domain(data_bars.map(d => d.flow));
-        
-    y.domain([0, d3.max(data_bars, d => d.value)]);
+    x.domain(data_bars.map(d => d.flow)); // set a domain for X axis scale
             
 const SVG_G = d3.select('#affected_flow');
 
     SVG_G.select('.x_axis')
-        .transition()
+        .transition() // gradual animation between different states of X axis
         .duration(duration)
-        .call(xAxis);
-
-    SVG_G.select('.y_axis')
-        .transition()
-        .duration(duration)
-        .call(yAxis);
+        .call(xAxis); // attach X axis
 
 
-var bars = SVG_G.selectAll(".affected_bars")
-        .data(data_bars);
+var bars = SVG_G.selectAll(".affected_bars") // select all existing bars. The first time this runs, there will be an empty selection
+        .data(data_bars); // bind data to a selection
 
-        //Update Set
+    
     bars
-        .transition()
-        .duration(duration)
-        .attr("x", d => x(d.flow))
-        .attr("y", d => y(d.value))
-        .attr("width", x.bandwidth())
-        .attr("height", d => HEIGHT - y(d.value));
-
-        // Enter Set
-    bars
-        .enter()
+        .enter()    // Enter Set, eg add new bars 
         .append("rect")
         .classed("affected_bars", true)
-        .attr("x", d => x(d.flow))
-        .attr("y", d => y(d.value))
-        // .attr("width", x.bandwidth())
-        //.attr("height", d => HEIGHT - y(d.value))
-        .merge(bars)
-        .attr("y", HEIGHT)
-        .attr("height", 0)
+        .merge(bars) // Enter + Update set, eg add new (update) bars to existing ones
         .transition()
         .duration(duration)
         .attr("x", d => x(d.flow))
         .attr("y", d => y(d.value))
         .attr("width", x.bandwidth())
-        .attr("height", d => HEIGHT - y(d.value));
+        .attr("height", d => HEIGHT - y(d.value)); // since in svg Y 0 starts at the top, we need to normalize it to start from bottom 
 
         // Exit Set
     bars
-        .exit()
+        .exit() // remove unnecessary bars
         .transition()
         .duration(duration)
         .attr("y", HEIGHT)
