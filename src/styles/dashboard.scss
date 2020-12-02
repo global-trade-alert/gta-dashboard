@@ -1,0 +1,52 @@
+.dashboard {
+  svg {
+    overflow:visible;
+  }
+  .panel {
+    background-color:$blank;
+    border:$borderLight;
+    border-radius:5px;
+    box-shadow:$shadowMedium;
+    overflow: hidden;
+    
+    .panel-title {
+      padding:$paddingSmall1;
+      background-color:$lightgrey;
+      border-bottom:$borderLight;
+      font-size:1em;
+      font-weight:400;
+      
+    }
+    
+    .panel-content > div {
+      min-height:0px;  
+      margin:$paddingSmall;
+    }
+  }
+  
+  .head-panel {
+    margin-bottom:$paddingSmall;
+  }
+  
+  .bottom-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap:$paddingSmall;
+  }
+  @media (max-width:992px) {
+    .bottom-panels {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  svg {
+    path,
+    rect {
+      cursor:pointer;
+    }
+    .hover-opacity {
+      fill-opacity: 0.8;
+    }
+  }
+  
+}

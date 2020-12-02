@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap');
+
+* {
+  margin:0;
+  padding:0;
+}
+
+body {
+  width:100%;
+}
+
+#plots {
+  float:left;
+  width:100%;
+  padding:40px;
+  box-sizing: border-box;
+}
+
+#plots #div_area { 
+  width:100%;
+  float:left;
+  margin-bottom:20px;
+  padding:20px;
+  box-sizing: border-box;
+}
+
+#plots #div_maps { 
+  float:left;
+  width:100%;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap:20px;
+}
+
+#plots #div_maps .column ,
+#div_area {
+  border-radius:5px;
+  border:1px solid #d3d3d3;
+  box-shadow:3px 3px 30px rgba(0,0,0,0.05);
+  background-color:#FFFFFF;
+}
+
+#plots .container {
+  padding:20px;
+}
+
+#plots #div_maps .column h1 {
+  color:rgb(101, 101, 101);
+  font-family:Helvetica;
+  font-weight:600;
+  font-size:calc(16px + 0.1vw);
+  background-color:rgb(247, 247, 247);
+  border-bottom:1px solid #d3d3d3;
+  padding:15px;
+}
+
+#plots #div_maps .column p {
+  color:rgb(101, 101, 101);
+  font-family:Helvetica;
+  font-weight:400;
+  font-size:calc(12px + 0.1vw);
+  border-radius:10px;
+  border:1px solid #d3d3d3;
+  margin:15px;
+  padding:10px;
+}
+
+.maps_background {
+  fill:#FFFFFF;
+}

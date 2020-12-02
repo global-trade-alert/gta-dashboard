@@ -2,8 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Area-chart</title>
-</head>
+  <title>GTA Dashboard</title>
+  <!-- <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://d3js.org/d3-array.v1.min.js"></script>
+  <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+  <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script> -->
+  
+<link rel="stylesheet" href="/src.e31bb0bc.css"></head>
 <body>
-<script type="text/javascript" src="main.js"></script></body>
-</html>
+  <!-- <script type="module" src="main.js"></script>
+  <script type="module" src="affected_flow_bars.js"></script>
+  <script type="module" src="map_affected.js"></script>
+  <script type="module" src="map_implementer.js"></script> -->
+  <div class="content">
+    <div class="dashboard">
+      <div class="head-panel panel">
+        <div class="panel-content">
+          <div id="main-plot"></div>
+        </div>      
+      </div>
+      <div class="bottom-panels">
+        <div class="panel">
+        <div class="panel-title">Implementing Jurisdiction</div>
+        <div class="panel-content">
+            <div id="implementer-plot"></div>
+          </div>        
+        </div>
+        <div class="panel">
+        <div class="panel-title">Affected Jurisdiction</div>
+        <div class="panel-content">
+            <div id="affected-plot"></div>
+          </div>        
+        </div>
+        <div class="panel">
+        <div class="panel-title">Affected Flow</div>
+        <div class="panel-content">
+            <div id="flow-plot"></div>
+          </div>        
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="plots"></div>
+  <script type="text/javascript" src="/src.e31bb0bc.js"></script>
+
+</body></html>
